@@ -2923,18 +2923,15 @@ if(document.getElementsByClassName){
 				switch(evt){
 					case 'mouseleave':
 						related=e.relatedTarget || e.toElement;
-						if(!related || (related!==me && !me.contains(related)) ){
-							return func.call(me, e);
-						}
 						break;
 					case 'mouseenter':
 						related=e.relatedTarget || e.fromElement;
-						if(!related || (related!==me && !me.contains(related)) ){
-							return func.call(me, e);
-						}
 						break;
 					default:
 						return func.call(me,e);
+				}
+				if(!related || (related!==me && !me.contains(related)) ){
+					return func.call(me, e);
 				}
 			}
 		};
@@ -3551,13 +3548,13 @@ Sky.fn.on=function(evt,selector,func){
 	});
 	return this;
 };
-Sky.fn.delegate=function(evt,selector,func){
+Sky.fn.delegate=function(selector,evt,func){
 	this.forEach(function(ele){
 		Sky.delegate(ele,evt,selector,func);
 	});
 	return this;
 };
-Sky.fn.undelegate=function(evt,selector,func){
+Sky.fn.undelegate=function(selector,evt,func){
 	return this.forEach(function(ele){
 		Sky.undelegate(ele,evt,selector,func);
 	});

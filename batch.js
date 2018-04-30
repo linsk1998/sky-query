@@ -593,13 +593,13 @@ Sky.fn.on=function(evt,selector,func){
 	});
 	return this;
 };
-Sky.fn.delegate=function(evt,selector,func){
+Sky.fn.delegate=function(selector,evt,func){
 	this.forEach(function(ele){
 		Sky.delegate(ele,evt,selector,func);
 	});
 	return this;
 };
-Sky.fn.undelegate=function(evt,selector,func){
+Sky.fn.undelegate=function(selector,evt,func){
 	return this.forEach(function(ele){
 		Sky.undelegate(ele,evt,selector,func);
 	});

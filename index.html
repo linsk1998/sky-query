@@ -137,21 +137,21 @@ $batch.css({"paddingLeft":"100px","color":"#fff"});</code></pre>
 			alert(this.className);//btn btn-default
 			alert(e.target.className);//btn btn-default OR badge
 		}
-		$("#delegateWrap").delegate("mouseenter",".btn",function(){
+		$("#delegateWrap").delegate(".btn","mouseenter",function(){
 			var $badge=$(this).find(".badge");
 			var t=parseInt($badge.text());
 			t++;
 			$badge.text(t.toString());
 		});
-		$("#delegateWrap").delegate("mouseleave",".btn",function(){
+		$("#delegateWrap").delegate(".btn","mouseleave",function(){
 			var $badge=$(this).find(".badge");
 			var t=parseInt($badge.text());
 			t--;
 			$badge.text(t.toString());
 		});
 	</script>
-	<a class="btn btn-primary" href='javascript:$("#delegateWrap").delegate("click",".btn",testHandle3);void 0'>绑定事件</a>
-	<a class="btn btn-primary" href='javascript:$("#delegateWrap").undelegate("click",".btn",testHandle3);void 0'>解除绑定</a>
+	<a class="btn btn-primary" href='javascript:$("#delegateWrap").delegate(".btn","click",testHandle3);void 0'>绑定事件</a>
+	<a class="btn btn-primary" href='javascript:$("#delegateWrap").undelegate(".btn","click",testHandle3);void 0'>解除绑定</a>
 	<h3 id="mouseenter">Sky.fn.mouseenter Sky.fn.mouseleave</h3>
 	<div id="mouseenter1" style="background:#999; padding:10px 0; position:relative;">
 		aa
