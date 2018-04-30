@@ -3,10 +3,10 @@
 $.overload([$.isString,$.isDocument],$,Sky.query);
 $.overload([$.isString,$.isElement],$,Sky.query);
 $.overload([$.isElement],$,Sky.ele);
-$.overload([$.isDocument],$,Sky.query);
+$.overload([$.isDocument],$,Sky.ele);
 
 $.overload([$.isFunction],$,function(callback){
-	if(Sky.isReady()){
+	if(Sky.isReady){
 		setTimeout(callback,0);
 	}else{
 		Sky.ready(callback);

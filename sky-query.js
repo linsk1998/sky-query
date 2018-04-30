@@ -2994,7 +2994,7 @@ if(document.getElementsByClassName){
 			for(var i=0; i<children.length; i++){
 				var child=children[i];
 				if(nodes.indexOf(child)<0){
-					if(selector && !matches(child,selector)){
+					if(selector && !Sky.matchesSelector(child,selector)){
 						continue ;
 					}
 					nodes.push(child);
@@ -3032,7 +3032,7 @@ if(document.getElementsByClassName){
 			var parent=ele;
 			while((parent=parent.parentNode) && parent!=document){
 				if(nodes.indexOf(parent)<0){
-					if(selector && !matches(parent,selector)){
+					if(selector && !Sky.matchesSelector(parent,selector)){
 						continue ;
 					}
 					nodes.push(parent);
@@ -3048,7 +3048,7 @@ if(document.getElementsByClassName){
 			while(parent=parent.parentNode){
 				if(nodes.indexOf(parent)<0){
 					nodes.push(parent);
-					if(matches(parent,selector)) break ;
+					if(Sky.matchesSelector(parent,selector)) break ;
 				}
 			};
 		});
@@ -3064,7 +3064,7 @@ if(document.getElementsByClassName){
 			var brother=ele;
 			while(brother=Sky.getNextElement(brother)){
 				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
+					if(selector && !Sky.matchesSelector(brother,selector)){
 						continue ;
 					}
 					nodes.push(parent);
@@ -3079,7 +3079,7 @@ if(document.getElementsByClassName){
 			var brother=ele;
 			while(brother=Sky.getPrevElement(brother)){
 				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
+					if(selector && !Sky.matchesSelector(brother,selector)){
 						continue ;
 					}
 					nodes.push(parent);
@@ -3094,7 +3094,7 @@ if(document.getElementsByClassName){
 			var brother=Sky.getPrevElement(ele);
 			if(brother){
 				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
+					if(selector && !Sky.matchesSelector(brother,selector)){
 						return ;
 					}
 					nodes.push(parent);
@@ -3109,7 +3109,7 @@ if(document.getElementsByClassName){
 			var brother=Sky.getNextElement(ele);
 			if(brother){
 				if(nodes.indexOf(brother)<0){
-					if(selector && !Sky.matches(brother,selector)){
+					if(selector && !Sky.matchesSelector(brother,selector)){
 						return ;
 					}
 					nodes.push(parent);
@@ -3125,7 +3125,7 @@ if(document.getElementsByClassName){
 			while(brother=Sky.getNextElement(brother)){
 				if(nodes.indexOf(brother)<0){
 					nodes.push(brother);
-					if(Sky.matches(brother,selector)) break ;
+					if(Sky.matchesSelector(brother,selector)) break ;
 				}
 			};
 		});
@@ -3138,7 +3138,7 @@ if(document.getElementsByClassName){
 			while(brother=Sky.getPrevElement(brother)){
 				if(nodes.indexOf(brother)<0){
 					nodes.push(brother);
-					if(Sky.matches(brother,selector)) break ;
+					if(Sky.matchesSelector(brother,selector)) break ;
 				}
 			};
 		});
@@ -3168,7 +3168,7 @@ if(document.getElementsByClassName){
 	Sky.fn.filter=function(selector){
 		var nodes=new Batch();
 		this.forEach(function(ele){
-			if(Sky.matches(ele,selector)){
+			if(Sky.matchesSelector(ele,selector)){
 				nodes.push(ele );
 			}
 		});
@@ -3177,7 +3177,7 @@ if(document.getElementsByClassName){
 	Sky.fn.not=function(selector){
 		var nodes=new Batch();
 		this.forEach(function(ele){
-			if(!Sky.matches(ele,selector)){
+			if(!Sky.matchesSelector(ele,selector)){
 				nodes.push(ele );
 			}
 		});
@@ -3622,10 +3622,10 @@ Sky.fn.input=function(func){
 $.overload([$.isString,$.isDocument],$,Sky.query);
 $.overload([$.isString,$.isElement],$,Sky.query);
 $.overload([$.isElement],$,Sky.ele);
-$.overload([$.isDocument],$,Sky.query);
+$.overload([$.isDocument],$,Sky.ele);
 
 $.overload([$.isFunction],$,function(callback){
-	if(Sky.isReady()){
+	if(Sky.isReady){
 		setTimeout(callback,0);
 	}else{
 		Sky.ready(callback);
