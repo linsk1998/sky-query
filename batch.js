@@ -492,6 +492,14 @@ Sky.fn.text=function(value){
 Sky.fn.val=function(value){
 	return this.prop("value",value);
 };
+Sky.fn.index=function(){
+	if(this.length==0){
+		return -1;
+	}
+	var ele=this[0];
+	var siblings=Array.from(ele.parentNode.children);
+	return siblings.indexOf(ele);
+};
 
 Sky.domData=new Map();
 Sky.fn.data=function(key,value){
