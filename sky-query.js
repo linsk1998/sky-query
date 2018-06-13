@@ -389,6 +389,15 @@ if(!Object.create){
 		return new F();
 	};
 }
+if(!Object.values){
+	Object.values=function(obj){
+		var result=[];
+		Sky.forOwn(obj,function(value,key){
+			result.push(obj[key]);
+		});
+		return result;
+	};
+}
 if(!Object.keys){
 	Object.keys=function(obj){
 		var result=[];
@@ -446,7 +455,15 @@ if(Sky.support.__defineSetter__){
 }
 if(!Array.from){
 	Array.from=function(arrayLike, mapFn, thisArg){
-		var arr=Array.prototype.slice.call(arrayLike);
+		var arr;
+		try{
+			arr=Array.prototype.slice.call(arrayLike);
+		}catch(e){
+			arr=new Array();
+			for(var i=0;i<arrayLike.length;i++){
+				arr.push(arrayLike[i]);
+			}
+		}
 		if(mapFn){
 			arr=arr.map( mapFn, thisArg);
 		}
@@ -2450,6 +2467,9 @@ Sky.UUID=function() {
 		var proxyHandle=function(e){
 			e=e || window.event;
 			e.target || (e.target=e.srcElement);
+			if(e.target==document){
+				return ;
+			}
 			e.stopPropagation || (e.stopPropagation=stopPropagation);
 			e.preventDefault || (e.preventDefault=preventDefault);
 			e.currentTarget || (e.currentTarget=ele);
@@ -2794,7 +2814,7 @@ Sky.destroy=function(ele){
 		for(var key in nodeInfo.attribute){
 			var value=nodeInfo.attribute[key];
 			if(value===null){
-				if(!element.hasAttribute(key)) return false;
+				if(!element.getAttribute(key)) return false;
 			}else{
 				if(element.getAttribute(key)!=value) return false;
 			}
@@ -3093,7 +3113,6 @@ Sky.destroy=function(ele){
 		});
 		return nodes;
 	};
-
 	Sky.fn.siblings=function(selector){
 		return this.parent().children(selector);
 	};
@@ -3201,7 +3220,10 @@ Sky.destroy=function(ele){
 	};
 	Sky.fn.eq=function(index){
 		var nodes=new Batch();
-		nodes.push(this[index]);
+		var ele=this[index];
+		if(ele){
+			nodes.push(ele);
+		}
 		return nodes;
 	};
 	Sky.fn.filter=function(selector){
@@ -3223,6 +3245,9 @@ Sky.destroy=function(ele){
 		return nodes;
 	};
 })();
+Sky.fn.add=function(el){
+	this.push(el);
+};
 Sky.fn.each=function(callback){
 	this.forEach(function(item,index){
 		callback.call(item,index);
@@ -3388,10 +3413,14 @@ Sky.fn.css=function(name,value){
 			this.forEach(function(ele){
 				ele.style[name]=value;
 			});
-		}else if(Sky.isString(name)){
+		}else if(name.includes(":")){
 			this.forEach(function(ele){
 				ele.style.cssText=name;
 			});
+		}else{
+			if(this.length){
+				return Sky.getElementStyle(this[0],name);
+			}
 		}
 	}else{
 		this.forEach(function(ele){
@@ -3486,12 +3515,17 @@ Sky.fn.text=function(value){
 Sky.fn.val=function(value){
 	return this.prop("value",value);
 };
-Sky.fn.index=function(){
+Sky.fn.index=function(selector){
 	if(this.length==0){
 		return -1;
 	}
 	var ele=this[0];
-	var siblings=Array.from(ele.parentNode.children);
+	var siblings;
+	if(selector){
+		siblings=Sky.ele(ele.parentNode).children(selector);
+	}else{
+		siblings=Array.from(ele.parentNode.children);
+	}
 	return siblings.indexOf(ele);
 };
 
@@ -3516,7 +3550,7 @@ Sky.fn.data=function(key,value){
 				return value;
 			}
 			var attr="data-"+key;
-			if(node.hasAttribute(attr)){
+			if(node.getAttribute(attr)){
 				value=node.getAttribute(attr);
 				return value;
 			}
@@ -3587,7 +3621,7 @@ Sky.fn.fire=function(evt){
 };
 Sky.fn.on=function(evt,selector,func){
 	if(func){
-		return this.delegate(evt,selector,func);
+		return this.delegate(selector,evt,func);
 	}
 	func=selector;
 	this.forEach(function(ele){

@@ -99,7 +99,6 @@
 		});
 		return nodes;
 	};
-
 	Sky.fn.siblings=function(selector){
 		return this.parent().children(selector);
 	};
@@ -207,7 +206,10 @@
 	};
 	Sky.fn.eq=function(index){
 		var nodes=new Batch();
-		nodes.push(this[index]);
+		var ele=this[index];
+		if(ele){
+			nodes.push(ele);
+		}
 		return nodes;
 	};
 	Sky.fn.filter=function(selector){
@@ -229,6 +231,9 @@
 		return nodes;
 	};
 })();
+Sky.fn.add=function(el){
+	this.push(el);
+};
 Sky.fn.each=function(callback){
 	this.forEach(function(item,index){
 		callback.call(item,index);
@@ -394,10 +399,14 @@ Sky.fn.css=function(name,value){
 			this.forEach(function(ele){
 				ele.style[name]=value;
 			});
-		}else if(Sky.isString(name)){
+		}else if(name.includes(":")){
 			this.forEach(function(ele){
 				ele.style.cssText=name;
 			});
+		}else{
+			if(this.length){
+				return Sky.getElementStyle(this[0],name);
+			}
 		}
 	}else{
 		this.forEach(function(ele){
@@ -492,12 +501,17 @@ Sky.fn.text=function(value){
 Sky.fn.val=function(value){
 	return this.prop("value",value);
 };
-Sky.fn.index=function(){
+Sky.fn.index=function(selector){
 	if(this.length==0){
 		return -1;
 	}
 	var ele=this[0];
-	var siblings=Array.from(ele.parentNode.children);
+	var siblings;
+	if(selector){
+		siblings=Sky.ele(ele.parentNode).children(selector);
+	}else{
+		siblings=Array.from(ele.parentNode.children);
+	}
 	return siblings.indexOf(ele);
 };
 
@@ -522,7 +536,7 @@ Sky.fn.data=function(key,value){
 				return value;
 			}
 			var attr="data-"+key;
-			if(node.hasAttribute(attr)){
+			if(node.getAttribute(attr)){
 				value=node.getAttribute(attr);
 				return value;
 			}
@@ -593,7 +607,7 @@ Sky.fn.fire=function(evt){
 };
 Sky.fn.on=function(evt,selector,func){
 	if(func){
-		return this.delegate(evt,selector,func);
+		return this.delegate(selector,evt,func);
 	}
 	func=selector;
 	this.forEach(function(ele){
