@@ -531,9 +531,11 @@ Sky.fn.data=function(key,value){
 		if(this.length>0){
 			node=this[0];
 			var data=Sky.domData.get(node);
-			value=data[key];
-			if(value!==undefined){
-				return value;
+			if(data){
+				value=data[key];
+				if(value!==undefined){
+					return value;
+				}
 			}
 			var attr="data-"+key;
 			if(node.getAttribute(attr)){
@@ -684,4 +686,54 @@ Sky.fn.input=function(func){
 	return this.each(function(){
 		Sky.addEvent(this,"input",func);
 	});
+};
+Sky.fn.offset=function(){
+	if(this.length===0){
+		return ;
+	}
+	var scrollTop,scrollLeft,clientTop,clientLeft;
+	var ele=this[0];
+	var rect=ele.getBoundingClientRect();
+	var dd=document.documentElement;
+	var db=document.body;
+	document.documentElement.scrollTop || document.body.scrollTop;
+	if(dd){
+		scrollTop=dd.scrollTop || db.scrollTop;
+		scrollLeft=dd.scrollLeft || db.scrollLeft;
+		clientTop=dd.clientTop || db.clientTop;
+		clientLeft=dd.clientLeft || db.clientLeft;
+	}else if(document.body){
+		scrollTop=db.scrollTop;
+		scrollLeft=db.scrollLeft;
+		clientTop=db.clientTop;
+		clientLeft=db.clientLeft;
+	}
+	return {
+		top:rect.top-clientTop+scrollTop,
+		left:rect.left-clientLeft+scrollLeft
+	};
+};
+Sky.fn.innerWidth=function(){
+	if(this.length){
+		var ele=this[0];
+		return ele.clientWidth;
+	}
+};
+Sky.fn.innerHeight=function(){
+	if(this.length){
+		var ele=this[0];
+		return ele.clientHeight;
+	}
+};
+Sky.fn.outerWidth=function(){
+	if(this.length){
+		var ele=this[0];
+		return ele.offsetWidth;
+	}
+};
+Sky.fn.outerHeight=function(){
+	if(this.length){
+		var ele=this[0];
+		return ele.offsetHeight;
+	}
 };
