@@ -1,11 +1,11 @@
 
 
-$.overload([$.isString,$.isDocument],$,Sky.query);
-$.overload([$.isString,$.isElement],$,Sky.query);
-$.overload([$.isElement],$,Sky.ele);
-$.overload([$.isDocument],$,Sky.ele);
+Sky.overload([Sky.isString,Sky.isDocument],Sky,Sky.query);
+Sky.overload([Sky.isString,Sky.isElement],Sky,Sky.query);
+Sky.overload([Sky.isElement],Sky,Sky.ele);
+Sky.overload([Sky.isDocument],Sky,Sky.ele);
 
-$.overload([$.isFunction],$,function(callback){
+Sky.overload([Sky.isFunction],Sky,function(callback){
 	if(Sky.isReady){
 		setTimeout(callback,0);
 	}else{
@@ -13,7 +13,7 @@ $.overload([$.isFunction],$,function(callback){
 	}
 });
 
-$.overload([$.isString],$,function(selector){
+Sky.overload([Sky.isString],Sky,function(selector){
 	if(selector.startsWith('#') || selector.includes(" ") || selector.includes(">")){
 		return Sky.query(selector);
 	}else{

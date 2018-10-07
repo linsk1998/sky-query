@@ -1,7 +1,7 @@
-
-var $=function(){
-	return $.overload(arguments,this);
+var Sky=function(){
+	return Sky.overload(arguments,this);
 };
+this.$=this.$ || Sky;
 (function(){
 	var rules=[];
 	function ckeck(ckeckFunc,index){
@@ -10,7 +10,7 @@ var $=function(){
 	function compare(x, y){//比较函数
 		return x.checks.length-y.checks.length;
 	}
-	$.overload=function(checks,func,target){
+	Sky.overload=function(checks,func,target){
 		if(target){
 			rules.push({
 				'checks':checks,
@@ -32,33 +32,33 @@ var $=function(){
 					}
 				}
 			}
-			return $;
+			return Sky;
 		}
 	};
 })();
-$.isArray=function(a){
+Sky.isArray=function(a){
 	return Array.isArray(a);
 };
-$.isDate=function(obj){
+Sky.isDate=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Date]';
 };
-$.isRegExp=function(obj){
+Sky.isRegExp=function(obj){
 	return Object.prototype.toString.call(obj)==='[object RegExp]';
 };
-$.isString=function(obj){
+Sky.isString=function(obj){
 	return Object.prototype.toString.call(obj)==='[object String]';
 };
-$.isFunction=function(obj){
+Sky.isFunction=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Function]';
 };
-$.isNumber=function(obj){
+Sky.isNumber=function(obj){
 	return Object.prototype.toString.call(obj)==='[object Number]';
 };
-$.is=function(obj,Clazz){
+Sky.is=function(obj,Clazz){
 	obj=Object(obj);
 	return obj instanceof Clazz;
 };
-$.isObject=function(obj){
+Sky.isObject=function(obj){
 	var type=typeof obj;
 	if(type!=="object"){
 		return false;
@@ -73,56 +73,68 @@ $.isObject=function(obj){
 	}
 	return true;
 };
-$.isDefined=function(obj){
+Sky.isDefined=function(obj){
 	return obj!==void 0;
 };
-$.isPlainObject=function(obj){
-	var key;
-	if(typeof obj !=="object"){
-		return false;
-	}
-	if(obj.toString()!=='[object Object]'){
-		return false;
-	}
-	var hasOwn=Object.prototype.hasOwnProperty;
-	try{
-		if(obj.constructor && obj.constructor!=Object){
-			return false;
-		}
-	}catch(e){
-		return false;
-	}
-	for( key in obj ){
-		if(!hasOwn.call(obj,key)){
-			return false;
-		}
-	}
-	return true;
+Sky.isWindow=function(obj){
+	return obj && typeof obj === "object" && "setInterval" in obj;
 };
-$.isArrayLike=function(obj){
+Sky.isPlainObject=function(obj){
+	if(typeof obj!=="object" || obj.nodeType || Sky.isWindow(obj)){
+		return false;
+	}
+	return obj.constructor===Object;
+};
+Sky.isArrayLike=function(obj){
 	var length=obj.length;
 	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
 		return false;
 	}
 	return true;
 };
-$.isNumeric=function(obj){
+Sky.isNumeric=function(obj){
 	var n=parseFloat(obj);
 	return !isNaN(n);
 };
 if(this.HTMLElement){
-	$.isElement=function(obj){
+	Sky.isElement=function(obj){
 		return obj instanceof HTMLElement;
 	};
 }else{
-	$.isElement=function(obj){
+	Sky.isElement=function(obj){
 		return obj?obj.nodeType===1:false;
 	};
 }
-$.isDocument=function(obj){
+Sky.isEmpty=function(obj){
+	if(obj==null) return true;
+	if(Sky.isNumber(obj.length)){
+		return !obj.length;
+	}
+	if(Sky.isNumber(obj.size)){
+		return !obj.size;
+	}
+	if(Sky.isFunction(obj.size)){
+		return !obj.size();
+	}
+	if(Sky.isFunction(obj.toArray)){
+		return !obj.toArray().length;
+	}
+	return false;
+};
+Sky.isArrayLike=function(obj){
+	var length=obj.length;
+	if(typeof length !="number" || length<0 || isNaN(length) || Math.ceil(length)!=length){
+		return false;
+	}
+	return true;
+};
+Sky.isNumeric=function(obj){
+	var n=parseFloat(obj);
+	return !isNaN(n);
+};
+Sky.isDocument=function(obj){
 	return obj===document;
 };
-Sky=this.Sky || this.$ || new Object();
 Sky.support={};
 (function(){
 	var userAgent = navigator.userAgent.toLowerCase();
@@ -154,17 +166,18 @@ Sky.support={};
 	}
 })();
 Sky.noop=function(){};
-
-if(!({toString:null}).propertyIsEnumerable('toString')){
+Sky.toString=null;
+if(!Sky.propertyIsEnumerable('toString')){
 	Sky.dontEnums=["toString","toLocaleString","valueOf","hasOwnProperty", "isPrototypeOf","propertyIsEnumerable"];
-	Sky.forIn=function(obj,fn){
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
 			if(!(obj instanceof Object)){
 				if(key.startsWith("__") || key=="constructor"){
 					continue ;
 				}
 			}
-			if(fn.call(obj,obj[key],key)===false){
+			if(fn.call(thisArg,obj[key],key)===false){
 				return false;
 			}
 		}
@@ -174,14 +187,15 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		while(nonEnumIdx--){
 			var prop=Sky.dontEnums[nonEnumIdx];
 			if(prop in obj && obj[prop]!==proto[prop]){
-				if(fn.call(obj,obj[prop],prop)===false){
+				if(fn.call(thisArg,obj[prop],prop)===false){
 					return false;
 				}
 			}
 		}
 		return true;
 	};
-	Sky.forOwn=function(obj,fn){
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		var type=typeof obj;
 		if(type=="unknow"){
 			return true;
@@ -196,7 +210,7 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 				}
 			}
 			if(Sky.hasOwn(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
+				if(fn.call(thisArg,obj[key],key)===false){
 					return false;
 				}
 			}
@@ -204,7 +218,7 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		for(var i=0;i<Sky.dontEnums.length;i++){
 			var prop=Sky.dontEnums[i];
 			if(Sky.hasOwn(obj,prop)){
-				if(fn.call(obj,obj[prop],prop)===false){
+				if(fn.call(thisArg,obj[prop],prop)===false){
 					return false;
 				}
 			}
@@ -225,18 +239,20 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		return Object.prototype.hasOwnProperty.call(obj,key);
 	};
 }else{
-	Sky.forIn=function(obj,fn){
+	Sky.forIn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
-			if(fn.call(obj,obj[key],key)===false){
+			if(fn.call(thisArg,obj[key],key)===false){
 				return false;
 			}
 		}
 		return true;
 	};
-	Sky.forOwn=function(obj,fn){
+	Sky.forOwn=function(obj,fn,thisArg){
+		thisArg=thisArg || window;
 		for(var key in obj) {
 			if(Object.prototype.hasOwnProperty.call(obj,key)){
-				if(fn.call(obj,obj[key],key)===false){
+				if(fn.call(thisArg,obj[key],key)===false){
 					return false;
 				}
 			}
@@ -247,53 +263,20 @@ if(!({toString:null}).propertyIsEnumerable('toString')){
 		return Object.prototype.hasOwnProperty.call(obj,key);
 	};
 }
-Sky.getCookie=function(name){
-	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
-	if(arr != null) return decodeURIComponent(arr[2]); return null;
-};
-Sky.setCookie=function(name,value){
-	var path="/";
-	var seconds;
-	var domain;
-	var expires;
-	if(arguments.length>2){
-		for(var i=2;i<arguments.length;i++){
-			if(Sky.isNumber(arguments[i])){
-				seconds=arguments[i];
-			}else if(Sky.isString(arguments[i])){
-				if(arguments[i].indexOf(".")>=0){
-					domain=arguments[i];
-				}else if(arguments[i].indexOf("/")>=0){
-					path=arguments[i];
-				}
-			}
-		}
-	}
-	if(value==null || seconds<=0) {
-		value='';
-		seconds=-2592000;
-	}
-	if(!isNaN(seconds)){
-		expires=new Date();
-		expires.setTime(expires.getTime() + seconds * 1000);
-	}
-	document.cookie=name+'='+encodeURIComponent(value)
-		+(expires?'; expires='+expires.toGMTString():'')
-		+'; path='+path
-		+(domain?'; domain='+domain:'');
-};
 Sky.support.VBScript=false;
 if(window.execScript){
-	window.execScript([
-		'Function alert(msg)',
-		'msgbox msg',
-		'End Function' //去除弹窗的图标
-	].join('\n'), 'VBScript');
-	if(typeof alert=="unknown"){
-		Sky.support.VBScript=true;
-	}
+	try{
+		window.execScript([
+			'Function alert(msg)',
+			'msgbox msg',
+			'End Function' //去除弹窗的图标
+		].join('\n'), 'VBScript');
+		if(typeof alert=="unknown"){
+			Sky.support.VBScript=true;
+		}
+	}catch(e){}
 }
-//开头补零
+//数字开头补零
 Sky.pad=function(value,width,chars){
 	if(!chars){chars=" ";}
 	if(Sky.isNumber(value)){
@@ -443,6 +426,13 @@ if(!Object.getPrototypeOf){
 		};
 	}
 }
+//上面的Object.getPrototypeOf有局限性，必须按照下面方式继承类才能使用
+function __extends(clazz, superClazz) {
+	Object.assign(clazz,superClazz);
+	clazz.prototype=Object.create(superClazz.prototype);
+	clazz.superclass=superClazz;//为了其他程序的代码方便获取父类
+	clazz.prototype.constructor=clazz;
+}
 Sky.support.defineProperty=!!Object.defineProperty && !!document.addEventListener;
 if(Sky.support.__defineSetter__){
 	Sky.support.defineProperty=true;
@@ -519,7 +509,8 @@ if(!Array.prototype.find){
 //遍历数组
 if(!Array.prototype.forEach){
 	Array.prototype.forEach =function(callback, thisArg){
-		for(var i=0,j; i<this.length; i++){
+		var len=this.length;
+		for(var i=0,j;i<len && i<this.length; i++){
 			j=this[i];
 			callback.call(thisArg,j,i,this);
 		}
@@ -661,6 +652,16 @@ if(!String.prototype.trim){
 		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,'');
 	};
 }
+if(!String.prototype.trimLeft){
+	String.prototype.trimLeft=function() {
+		return this.replace(/^[\s\uFEFF\xA0]+/g,'');
+	};
+}
+if(!String.prototype.trimRight){
+	String.prototype.trimRight=function() {
+		return this.replace(/[\s\uFEFF\xA0]+$/g,'');
+	};
+}
 if(!String.prototype.startsWith){
 	String.prototype.startsWith=function(prefix,position){
 		position=position?position:0;
@@ -756,9 +757,12 @@ if(!this.Map){
 		return false;
 	};
 	Map.prototype.forEach=function(callbackfn,thisArg){
-		for(var i=0,j;i<this.size; i++){
+		var len=this.size;
+		for(var i=0,j;i<len; i++){
 			j=this.items[i];
-			callbackfn.call(thisArg,j[1],j[0],i,this);
+			if(j){
+				callbackfn.call(thisArg,j[1],j[0],i,this);
+			}
 		}
 	};
 	Map.prototype.get=function(key){
@@ -1040,7 +1044,7 @@ if(!URLSearchParams.prototype.sort){
 		});
 	};
 }
-document.head=document.getElementsByTagName("head")[0];
+document.head=document.head || document.getElementsByTagName("head")[0];
 /** 判断一个节点后代是否包含另一个节点 **/
 if(this.Node && Node.prototype && !Node.prototype.contains){
 	Node.prototype.contains=function(arg){
@@ -1058,17 +1062,73 @@ if(!document.contains){
 		return false;
 	};
 }
-if(this.HTMLElement && !document.head.children) {
-	HTMLElement.prototype.__defineGetter__("children", function() {
-		var a=[];
-		for(var i=0; i<this.childNodes.length; i++){
-			var n=this.childNodes[i];
-			if(n.nodeType==1){
-				a.push(n);
+if(this.HTMLElement) {
+	if(!document.head.children){
+		HTMLElement.prototype.__defineGetter__("children", function() {
+			var a=[];
+			for(var i=0; i<this.childNodes.length; i++){
+				var n=this.childNodes[i];
+				if(n.nodeType==1){
+					a.push(n);
+				}
 			}
-		}
-		return a;
-	});
+			return a;
+		});
+	}
+	if(!('innerText' in document.head)){
+		(function(){
+			HTMLElement.prototype.__defineGetter__( "innerText", function(){
+				var anyString = "";
+				var childS = this.childNodes;
+				for(var i=0; i<childS.length; i++){
+					var node=childS[i];
+					if(node.nodeType==1){
+						switch(node.tagName){
+							case "BR":
+								anyString+='\n';
+								break ;
+							case "SCRIPT":
+							case "STYLE":
+							case "TEMPLATE":
+								break ;
+							default :
+								anyString+=node.innerText;
+						}
+					}else if(node.nodeType==3){
+						var nodeValue=node.nodeValue;
+						if(i==0)
+							nodeValue=nodeValue.trimLeft();
+						if(i==childS.length-1)
+							nodeValue=nodeValue.trimRight();
+						if(i>0 && i<childS.length-1){
+							if(nodeValue.match(/^\s+$/)){
+								if(checkBlock(childS[i-1]) || checkBlock(childS[i+1])){
+									nodeValue="\n";
+								}
+							}
+						}
+						anyString+=nodeValue;
+					}
+				}
+				return anyString.trim();
+			});
+			function checkBlock(node){
+				switch(node.tagName){
+					case "BR":
+					case "SPAN":
+					case "I":
+					case "U":
+					case "B":
+					case "FONT":
+						return false;
+				}
+				return true;
+			}
+		})();
+		HTMLElement.prototype.__defineSetter__( "innerText", function(sText){
+			this.textContent=sText;
+		});
+	}
 }
 if(!window.execScript){
 	window.execScript=function(script,lang) {
@@ -1078,7 +1138,7 @@ if(!window.execScript){
 		window["eval"].call( window,script);
 	};
 }
-
+//坑
 var StringBuilder;
 if(!-[1,]){//ie6-8
 	StringBuilder=function() {
@@ -1101,9 +1161,37 @@ if(!-[1,]){//ie6-8
 		return this._source;
 	}
 }
+//坑
+function Duration(dt){
+	this.value=dt;
+}
+Duration.prototype.valueOf=function(){
+	return this.value;
+};
+Duration.prototype.getYear=function(){
+	return this.value/8765813;
+};
+Duration.prototype.getMonth=function(){
+	return this.value/8765813*12;
+};
+Duration.prototype.getDay=function(){
+	return this.value/1000/60/60/24;
+};
+Duration.prototype.getMin=function(){
+	return this.value/1000/60/60;
+};
+Duration.prototype.getMinute=function(){
+	return this.value/1000/60;
+};
+Duration.prototype.getSecond=function(){
+	return this.value/1000;
+};
 function DateFormat(pattern){
 	this.pattern=pattern;
 }
+DateFormat.prototype.toString=function(){
+	return this.pattern;
+};
 DateFormat.prototype.format=function(date){
 	return this.pattern.replace(/yyyy/g,date.getFullYear())
 		.replace(/yy/g,Sky.pad(date.getYear()%100,2))
@@ -1215,326 +1303,386 @@ DateFormat.parse=function(str){
 		}
 	}
 	return d;
-};
-if(!this.Promise){
+};//setImmediate在setTimeout之前执行
+if(!this.setImmediate){
 	(function(global){
-		var PENDING = 'pending';
-		var SEALED = 'sealed';
-		var FULFILLED = 'fulfilled';
-		var REJECTED = 'rejected';
-
-// async calls
-		var asyncSetTimer = typeof setImmediate !== 'undefined' ? setImmediate : setTimeout;
-		var asyncQueue = [];
-		var asyncTimer;
-
-		function asyncFlush(){
-			// run promise callbacks
-			for (var i = 0; i < asyncQueue.length; i++)
-				asyncQueue[i][0](asyncQueue[i][1]);
-			// reset async asyncQueue
-			asyncQueue = [];
-			asyncTimer = false;
-		}
-		function asyncCall(callback, arg){
-			asyncQueue.push([callback, arg]);
-			if (!asyncTimer){
-				asyncTimer = true;
-				asyncSetTimer(asyncFlush, 0);
-			}
-		}
-		function invokeResolver(resolver, promise) {
-			function resolvePromise(value) {
-				resolve(promise, value);
-			}
-			function rejectPromise(reason) {
-				reject(promise, reason);
-			}
-			try {
-				resolver(resolvePromise, rejectPromise);
-			} catch(e) {
-				console.error(e);
-				rejectPromise(e);
-			}
-		}
-		function invokeCallback(subscriber){
-			var owner = subscriber.owner;
-			var settled = owner.state_;
-			var value = owner.data_;
-			var callback = subscriber[settled];
-			var promise = subscriber.then;
-			if (typeof callback === 'function'){
-				settled = FULFILLED;
-				try {
-					value = callback(value);
-				} catch(e) {
-					console.error(e);
-					reject(promise, e);
+		var index=0;
+		var handles=new Map();
+		if(this.Promise){
+			global.setImmediate=function(fn){
+				index++;
+				var args=Array.from(arguments);
+				args.shift();
+				var p=Promise.resolve(index);
+				handles.set(index,args);
+				p.then(function(id){
+					var args=handles.get(id);
+					if(args){
+						fn.apply(global,args);
+						clearImmediate(id);
+					}
+				});
+				return index;
+			};
+		}else{
+			var setTimeoutN=setTimeout;
+			var ticks=null;
+			global.setImmediate=function(fn){
+				index++;
+				if(!ticks){
+					ticks=new Array();
+					setTimeoutN(nextTick);
 				}
+				ticks.push(index);
+				handles.set(index,arguments);
+				return index;
+			};
+			var setTimeoutN=setImmediate.setTimeout=setTimeout;
+			if(document.addEventListener){
+				global.setTimeout=function(fn,time){
+					time=time || 11;
+					return setTimeoutN(fn,time);
+				};
+			}else{
+				window.execScript('function setTimeout(fn,time){time=time || 54;var setTimeout=setImmediate.setTimeout;return setTimeout(fn,time);}');
 			}
-			if (!handleThenable(promise, value)){
-				if (settled === FULFILLED)
-					resolve(promise, value);
-
-				if (settled === REJECTED)
-					reject(promise, value);
-			}
-		}
-		function handleThenable(promise, value) {
-			var resolved;
-			try {
-				if (promise === value)
-					throw new TypeError('A promises callback cannot return that same promise.');
-
-				if (value && (typeof value === 'function' || typeof value === 'object')){
-					var then = value.then;  // then should be retrived only once
-					if (typeof then === 'function'){
-						then.call(value, function(val){
-							if (!resolved){
-								resolved = true;
-								if (value !== val)
-									resolve(promise, val);
-								else
-									fulfill(promise, val);
-							}
-						}, function(reason){
-							if (!resolved){
-								resolved = true;
-								reject(promise, reason);
-							}
-						});
-						return true;
+			function nextTick(){
+				for(var i=0;i<ticks.length;i++){
+					var id=ticks[i];
+					var args=handles.get(id);
+					if(args){
+						var fn=args[0];
+						args=Array.from(args);
+						args.shift();
+						try{
+							fn.apply(global,args);
+						}catch(e){
+							console.error(e);
+						}
 					}
 				}
-			} catch (e) {
-				if (!resolved)
-					reject(promise, e);
-				return true;
-			}
-			return false;
-		}
-		function resolve(promise, value){
-			if (promise === value || !handleThenable(promise, value))
-				fulfill(promise, value);
-		}
-		function fulfill(promise, value){
-			if (promise.state_ === PENDING){
-				promise.state_ = SEALED;
-				promise.data_ = value;
-				asyncCall(publishFulfillment, promise);
+				ticks=null;
+				handles.clear();
 			}
 		}
-		function reject(promise, reason){
-			if (promise.state_ === PENDING){
-				promise.state_ = SEALED;
-				promise.data_ = reason;
-
-				asyncCall(publishRejection, promise);
-			}
-		}
-		function publish(promise) {
-			var callbacks = promise.then_;
-			promise.then_ = undefined;
-			for (var i = 0; i < callbacks.length; i++) {
-				invokeCallback(callbacks[i]);
-			}
-		}
-		function publishFulfillment(promise){
-			promise.state_ = FULFILLED;
-			publish(promise);
-		}
-		function publishRejection(promise){
-			promise.state_ = REJECTED;
-			publish(promise);
-		}
-		function Promise(resolver){
-			if (typeof resolver !== 'function')
-				throw new TypeError('Promise constructor takes a function argument');
-			if (this instanceof Promise === false)
-				throw new TypeError('Failed to construct \'Promise\': Please use the \'new\' operator, this object constructor cannot be called as a function.');
-			this.then_ = [];
-			invokeResolver(resolver, this);
-		}
-		Promise.prototype = {
-			constructor: Promise,
-			state_: PENDING,
-			then_: null,
-			data_: undefined,
-			then: function(onFulfillment, onRejection){
-				var subscriber = {
-					owner: this,
-					then: new this.constructor(Sky.noop),
-					fulfilled: onFulfillment,
-					rejected: onRejection
-				};
-				if (this.state_ === FULFILLED || this.state_ === REJECTED){
-					// already resolved, call callback async
-					asyncCall(invokeCallback, subscriber);
-				}else{
-					this.then_.push(subscriber);
-				}
-				return subscriber.then;
-			}
+		global.clearImmediate=function(id){
+			handles['delete'](id);
 		};
-		global.Promise=Promise;
 	})(this);
-	Promise.all=function(promises){
-		if (!Sky.isArray(promises)) {
-			throw new TypeError('You must pass an array to all.');
+}
+(function(global){
+	function Deferred(){
+		this._resolveds=[];
+		this._rejecteds=[];
+		this._state="pending";//resolved | rejected
+	}
+	Deferred.prototype.state=function(){
+		return this._state;
+	};
+	Deferred.prototype.done=function(fn){
+		if(this._state=="resolved"){
+			fn.call(this,this.data);
+		}else if(this._state=="pending"){
+			this._resolveds.push(fn);
 		}
-		return new Promise(function(resolve,reject){
-			if(promises.length==0) return resolve(new Array());
-			var result=new Array(promises.length);
-			var c=0;
-			promises.forEach(function(one,index){
-				if(one instanceof Promise){
-					one.then(function(data){
+		return this;
+	};
+	Deferred.prototype.fail=function(fn){
+		if(this._state=="rejected"){
+			fn.call(this,this.data);
+		}else if(this._state=="pending"){
+			this._rejecteds.push(fn);
+		}
+		return this;
+	};
+	Deferred.prototype.always=function(fn){
+		if(this._state=="pending"){
+			this._resolveds.push(fn);
+			this._rejecteds.push(fn);
+		}else{
+			fn.call(this,this.data);
+		}
+	};
+	Deferred.prototype.resolve=function(d){
+		if(this._state=="pending"){
+			this.data=d;
+			this._state="resolved";
+			this._resolveds.forEach(callAll,this);
+			this._resolveds=null;
+		}
+		return this;
+	};
+	Deferred.prototype.reject=function(d){
+		if(this._state=="pending"){
+			this.data=d;
+			this._state="rejected";
+			this._rejecteds.forEach(callAll,this);
+			this._rejecteds=null;
+		}
+		return this;
+	};
+	function callAll(fn){
+		fn.call(this,this.data);
+	}
+	if(!this.Promise){
+		function Promise(executor){
+			Deferred.call(this);
+			var me=this;
+			function resolve(value) {
+				setImmediate(function(){
+					me.resolve(value);
+				});
+			}
+			function reject(reason) {
+				setImmediate(function(){
+					me.reject(reason);
+				});
+			}
+			try{
+				executor(resolve, reject);
+			}catch(e){
+				reject(e);
+			}
+		}
+		Promise.prototype=Object.create(Deferred.prototype);
+		Promise.prototype.constructor=Promise;
+		function nextPromise(before,after,resolve,reject){
+			return function(value){
+				try{
+					var x=before(value);
+					if(typeof x.then==="function"){
+						x.then(resolve, reject);
+					}else{
+						after(x);
+					}
+				}catch(r){
+					reject(r);
+				}
+			};
+		}
+		Promise.prototype.then=function(onResolved, onRejected){
+			var me=this;
+			onResolved=onResolved || Sky.noop;
+			onRejected=onRejected || Sky.noop;
+			return new Promise(function(resolve,reject){
+				switch(me.state()){
+					case "resolved":
+						setImmediate(nextPromise(onResolved,resolve,resolve,reject),me.data);
+						break ;
+					case "rejected":
+						setImmediate(nextPromise(onRejected,reject,resolve,reject),me.data);
+						break ;
+					default:
+						me._resolveds.push(nextPromise(onResolved,resolve,resolve,reject));
+						me._rejecteds.push(nextPromise(onRejected,reject,resolve,reject));
+				}
+			});
+		};
+		Promise.prototype['catch']=function(onRejected){
+			return this.then(undefined,onRejected);
+		};
+		Promise.all=function(promises){
+			if (!Sky.isArray(promises)) {
+				throw new TypeError('You must pass an array to all.');
+			}
+			return new Promise(function(resolve,reject){
+				if(promises.length==0) return resolve(new Array());
+				var result=new Array(promises.length);
+				var c=0;
+				promises.forEach(function(one,index){
+					if(one instanceof Promise){
+						one.then(function(data){
+							c++;
+							result[index]=data;
+							if(c>=promises.length){
+								resolve(result);
+							}
+						},function(data){
+							reject(data);
+						});
+					}else{
 						c++;
-						result[index]=data;
+						result[index]=one;
 						if(c>=promises.length){
 							resolve(result);
 						}
-					},function(data){
-						reject(data);
-					});
-				}else{
-					c++;
-					result[index]=one;
-					if(c>=promises.length){
-						resolve(result);
 					}
-				}
-			});
-		});
-	};
-	Promise.race=function(promises){
-		if (!Array.isArray(promises)) {
-			throw new TypeError('You must pass an array to all.');
-		}
-		return new Promise(function(resolve,reject){
-			promises.forEach(function(one){
-				one.then(function(){
-					resolve();
-				},function(){
-					reject();
 				});
 			});
-		});
-	};
-	Promise.resolve=function(arg){
-		return new Promise(function(resolve,reject){
-			resolve(arg)
-		});
-	};
-	Promise.reject=function(arg){
-		return Promise(function(resolve,reject){
-			reject(arg)
-		});
-	};
-}/* 这个polyfill只适合解析URL，
- * URL对象创建后，属性修改，其他属性不会变化
- * 如果需要的话，用scenario文件夹的那个polyfill
-  * */
-try{
-	if(new URL(location.href).href){
-		Sky.support.URL=true;
-	}else{
-		Sky.support.URL=false;
+		};
+		Promise.race=function(promises){
+			if (!Array.isArray(promises)) {
+				throw new TypeError('You must pass an array to all.');
+			}
+			return new Promise(function(resolve,reject){
+				promises.forEach(function(one){
+					one.then(function(){
+						resolve();
+					},function(){
+						reject();
+					});
+				});
+			});
+		};
+		Promise.resolve=function(arg){
+			return new Promise(function(resolve,reject){
+				resolve(arg)
+			});
+		};
+		Promise.reject=function(arg){
+			return Promise(function(resolve,reject){
+				reject(arg)
+			});
+		};
+		global.Promise=Promise;
+		global.Deferred=Deferred;
 	}
-}catch(e){
-	Sky.support.URL=false;
-}
-if(!Sky.support.URL){
-	URL=function(relativePath, absolutePath){
-		var path,arr;
-		var pattern=/^[a-zA-Z]+:/;
-		if(arr=relativePath.match(pattern)){
-			this.href=relativePath;
-			this.protocol=arr[0];
-			path=relativePath.replace(pattern,"");
-			pattern=/^\/*([^\/]+)/;
-			var host=path.match(pattern)[1];
-			path=path.replace(pattern,"");
-			arr=host.split("@");
-			if(arr.length>1){
-				this.host=arr[1];
-				arr=arr[0].split(":");
-				if(arr.length>1){
-					this.username=arr[0];
-					this.password=arr[1];
-				}else{
-					this.username=arr[0];
-				}
-			}else{
-				this.username="";
-				this.password="";
-				this.host=host;
-			}
-		}else if(absolutePath){
-			var absInfo=absolutePath.indexOf?new URL(absolutePath):absolutePath;
-			this.protocol=absInfo.protocol;
-			this.hostname=absInfo.hostname;
-			this.host=absInfo.host;
-			this.origin=absInfo.origin;
-			this.port=absInfo.port;
-			this.username=absInfo.username || "";
-			this.password=absInfo.password || "";
-			this.pathname=absInfo.pathname;
-			if(relativePath.startsWith("/")){
-				path=relativePath;
-			}else if(relativePath.startsWith("../")){
-				path=absInfo.pathname+relativePath;
-				pattern=/[^\/]+\/\.\.\//;
-				while(pattern.test(path)){
-					path=path.replace(pattern,"");
-				}
-				path=path.replace(/^(\/\.\.)+/,"");
-			}else{
-				if(relativePath.startsWith("#")){
-					this.search=absInfo.search;
-					this.hash=relativePath;
-					this.href=absInfo.href.replace(/#.*$/,this.hash);
-					return ;
-				}else if(relativePath.startsWith("?")){
-					path=absInfo.pathname+relativePath;
-				}else{
-					path=absInfo.pathname.replace(/[^\/]*$/,"")+relativePath.replace(/^\.\//,"");
-				}
-			}
-		}else{
-			throw "SYNTAX_ERROR";
-		}
-		pattern=/^[^#]*/;
-		this.hash=path.replace(pattern,"");
-		arr=path.match(pattern);
-		path=arr[0];
-		pattern=/^[^\?]*/;
-		this.search=path.replace(pattern,"");
-		arr=path.match(pattern);
-		this.pathname=arr[0];
-
-		pattern=/(.*):(\d+)$/;
-		arr=this.host.match(pattern);
-		this.port="";
-		if(arr){
-			this.hostname=arr[1];
-			if(arr[2]!="80"){
-				this.port=arr[2];
-			}
-		}else{
-			this.hostname=this.host;
-		}
-		this.origin=this.protocol+"//"+this.host;
-		var user=this.username;
-		if(user){
-			if(this.password){
-				user+=":"+this.password;
-			}
-			user+="@";
-		}
-		this.href=this.protocol+"//"+user+this.host+this.pathname+this.search+this.hash;
+	Sky.Deferred=function(){
+		return new Deferred();
 	};
-}
+})(this);
+
+Sky.when=function(subordinate){
+	if(arguments.length==1){
+		return arguments[0];
+	}
+	var resolveValues=Array.from(arguments);
+	var dfd=Sky.Deferred();
+	var i=0;
+	resolveValues.forEach(function(item){
+		item.done(function(){
+			i++;
+			if(i==resolveValues.length){
+				dfd.resolve();
+			}
+		});
+	});
+	return dfd;
+};
+Sky.getCookie=function(name){
+	var arr=document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+	if(arr != null) return decodeURIComponent(arr[2]); return null;
+};
+Sky.setCookie=function(name,value){
+	var path="/";
+	var seconds;
+	var domain;
+	var expires;
+	if(arguments.length>2){
+		for(var i=2;i<arguments.length;i++){
+			if(Sky.isNumber(arguments[i])){
+				seconds=arguments[i];
+			}else if(Sky.isString(arguments[i])){
+				if(arguments[i].indexOf(".")>=0){
+					domain=arguments[i];
+				}else if(arguments[i].indexOf("/")>=0){
+					path=arguments[i];
+				}
+			}
+		}
+	}
+	if(value==null || seconds<=0) {
+		value='';
+		seconds=-2592000;
+	}
+	if(!isNaN(seconds)){
+		expires=new Date();
+		expires.setTime(expires.getTime() + seconds * 1000);
+	}
+	document.cookie=name+'='+encodeURIComponent(value)
+		+(expires?'; expires='+expires.toGMTString():'')
+		+'; path='+path
+		+(domain?'; domain='+domain:'');
+};
+
+Sky.clearSelect="getSelection" in window ? function(){
+	window.getSelection().removeAllRanges();
+} : function(){
+	document.selection.empty();
+};
+Sky.addFavorite=function(sURL, sTitle){
+	try{
+		window.external.addFavorite(sURL, sTitle);
+	}catch (e){
+		try{
+			window.sidebar.addPanel(sTitle, sURL, "");
+		}catch (e){
+			if(Sky.browser.moblie){
+				alert("请点击菜单上的“☆”加入收藏");
+			}else{
+				alert("\u52a0\u5165\u6536\u85cf\u5931\u8d25\uff0c\u8bf7\u4f7f\u7528Ctrl+D\u8fdb\u884c\u6dfb\u52a0");
+			}
+		}
+	}
+};
+Sky.setHome=function(ele,url){
+	ele.onclick=function(){
+		try{
+			this.style.behavior='url(#default#homepage)';
+			this.setHomePage(url);
+			return false;
+		}catch(e){
+			if('netscape' in window){
+				try{
+					netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+				}catch(e){
+					alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入“about:config”并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
+					return false;
+				}
+			}
+		}
+	};
+};
+Sky.copyToClipboard=function(txt){
+	if(window.clipboardData){
+		try{
+			window.clipboardData.setData("Text",txt);
+			return ;
+		}catch(e){
+		}
+	}
+	var tip=Sky.browser.moblie?"长按复制到剪贴板：":"Ctrl+C复制到剪贴板：";
+	prompt(tip,txt);
+};
+//document.getElementById("text").select();
+//document.execCommand("copy",false,null);
+
+(function(){
+	Sky.isReady=false;
+	var p=new Promise(function(resolve, reject){
+		if(document.addEventListener){
+			document.addEventListener("DOMContentLoaded",function(){
+				Sky.isReady=true;
+				resolve();
+			},false);
+		}else if(window==window.top){
+			(function() {
+				try{
+					document.documentElement.doScroll('left');
+					Sky.isReady=true;
+					resolve();
+				}catch(e){
+					setTimeout(arguments.callee, 0);
+				}
+			})();
+		}else{
+			document.attachEvent("onreadystatechange",function(){
+				if(document.readyState === "complete") {
+					document.detachEvent("onreadystatechange", arguments.callee);
+					Sky.isReady=true;
+					resolve();
+				}
+			});
+		}
+	});
+	Sky.ready=function(callback){
+		if(callback && !Sky.isReady){
+			p.then(callback);
+		}
+		return p;
+	};
+})();
+
 Sky.support.localStorage=true;
 if(!this.localStorage){
 	Sky.support.localStorage=false;
@@ -1565,7 +1713,7 @@ if(!this.sessionStorage){
 		var ele=document.createElement("sessionStorage");
 		var sessionId=Sky.getCookie("JSESSIONID");
 		if(!sessionId){
-			sessionId=Math.random()+"";
+			sessionId=Math.random().toString(16).replace("0.","");
 			Sky.setCookie("JSESSIONID",sessionId);
 		}
 		if(ele.addBehavior){
@@ -1588,6 +1736,7 @@ if(!this.sessionStorage){
 	}();
 }
 Sky.ajax=function(options){
+	var dfd=Sky.Deferred();
 	var targetUrl=options.url;
 	var success=options.success;
 	var error=options.error;
@@ -1608,8 +1757,10 @@ Sky.ajax=function(options){
 				}
 				if(dataType.toUpperCase() == 'XML') {
 					if(!xhr.responseXML || !xhr.responseXML.lastChild || xhr.responseXML.lastChild.localName == 'parsererror') {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					} else {
+						dfd.resolve(xhr.responseXML.lastChild);
 						success.call(xhr,xhr.responseXML.lastChild);
 					}
 				}else if(dataType.toUpperCase() == 'JSON') {
@@ -1617,13 +1768,19 @@ Sky.ajax=function(options){
 					try {
 						data=JSON.parse(xhr.responseText);
 					}catch(err) {
+						dfd.reject(xhr.responseText);
 						if(error) error.call(xhr,xhr.responseText);
 					}
-					if(data) success.call(xhr,data);
+					if(data){
+						dfd.resolve(data);
+						success.call(xhr,data);
+					}
 				}else{
+					dfd.resolve(xhr.responseText);
 					success.call(xhr,xhr.responseText);
 				}
 			}else if(error){
+				dfd.reject(xhr.responseText);
 				error.call(xhr,xhr.responseText);
 			}
 			if(complete) complete.call(xhr,xhr.responseText);
@@ -1654,9 +1811,10 @@ Sky.ajax=function(options){
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 		xhr.send(null);
 	}
+	return dfd;
 };
 Sky.get=function(targetUrl,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "GET",
 		'dataType' : datatype,
@@ -1680,7 +1838,7 @@ Sky.ajax.get=function(targetUrl,datatype){
 	});
 };
 Sky.post=function(targetUrl,data,success,datatype,error){
-	Sky.ajax({
+	return Sky.ajax({
 		'url' : targetUrl,
 		'type' : "POST",
 		'data' : data,
@@ -1869,60 +2027,10 @@ Sky.getScript=function(src,func,charset){
 		}
 	}
 })();
+//later is Deprecated
 Sky.later=function(fn){
 	setTimeout(fn,0);
 };
-Sky.clearSelect="getSelection" in window ? function(){
-	window.getSelection().removeAllRanges();
-} : function(){
-	document.selection.empty();
-};
-Sky.addFavorite=function(sURL, sTitle){
-	try{
-		window.external.addFavorite(sURL, sTitle);
-	}catch (e){
-		try{
-			window.sidebar.addPanel(sTitle, sURL, "");
-		}catch (e){
-			if(Sky.browser.moblie){
-				alert("请点击菜单上的“☆”加入收藏");
-			}else{
-				alert("\u52a0\u5165\u6536\u85cf\u5931\u8d25\uff0c\u8bf7\u4f7f\u7528Ctrl+D\u8fdb\u884c\u6dfb\u52a0");
-			}
-		}
-	}
-};
-Sky.setHome=function(ele,url){
-	ele.onclick=function(){
-		try{
-			this.style.behavior='url(#default#homepage)';
-			this.setHomePage(url);
-			return false;
-		}catch(e){
-			if('netscape' in window){
-				try{
-					netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-				}catch(e){
-					alert("抱歉，此操作被浏览器拒绝！\n\n请在浏览器地址栏输入“about:config”并回车然后将[signed.applets.codebase_principal_support]设置为'true'");
-					return false;
-				}
-			}
-		}
-	};
-};
-Sky.copyToClipboard=function(txt){
-	if(window.clipboardData){
-		try{
-			window.clipboardData.setData("Text",txt);
-			return ;
-		}catch(e){
-		}
-	}
-	var tip=Sky.browser.moblie?"长按复制到剪贴板：":"Ctrl+C复制到剪贴板：";
-	prompt(tip,txt);
-};
-//document.getElementById("text").select();
-//document.execCommand("copy",false,null);
 //获取字符串占位长度
 Sky.strlen=function(str){
 	var len=0;
@@ -2139,7 +2247,7 @@ Sky.sortedLastIndex=function(arr,value){
 	};
 	var defaultNextSequence;
 	var sequenceMap=new Map();
-	Sky.nextSequence=function(arg1,arg2){
+	Sky.uniqueId=function(arg1,arg2){
 		if(Sky.isString(arg1)){
 			var s=sequenceMap.get(arg1);
 			if(Sky.isDefined(s)){
@@ -2199,42 +2307,6 @@ Sky.UUID=function() {
 		resolve(uuid);
 	});
 };
-(function(){
-	Sky.isReady=false;
-	var p=new Promise(function(resolve, reject){
-		if(document.addEventListener){
-			document.addEventListener("DOMContentLoaded",function(){
-				Sky.isReady=true;
-				resolve();
-			},false);
-		}else if(window==window.top){
-			(function() {
-				try{
-					document.documentElement.doScroll('left');
-					Sky.isReady=true;
-					resolve();
-				}catch(e){
-					setTimeout(arguments.callee, 0);
-				}
-			})();
-		}else{
-			document.attachEvent("onreadystatechange",function(){
-				if(document.readyState === "complete") {
-					document.detachEvent("onreadystatechange", arguments.callee);
-					Sky.isReady=true;
-					resolve();
-				}
-			});
-		}
-	});
-	Sky.ready=function(callback){
-		if(callback && !Sky.isReady){
-			p.then(callback);
-		}
-		return p;
-	};
-})();
-
 (function(window){
 	if(document.addEventListener){
 		Sky.attachEvent=function(obj, evt, func){
@@ -2458,13 +2530,11 @@ Sky.UUID=function() {
 	if(Sky.browser.ie9){
 		Sky.event.fix.input={
 			attachEvent:function(ele, evt, func){
-				Sky.attachEvent(ele,'change',func);
 				Sky.attachEvent(ele,'selectionchange',func);
 				Sky.attachEvent(ele,'keyup',func);
 				Sky.attachEvent(ele,'input',func);
 			},
 			detachEvent:function(ele, evt, func){
-				Sky.detachEvent(ele,'change',func);
 				Sky.detachEvent(ele,'selectionchange',func);
 				Sky.detachEvent(ele,'keyup',func);
 				Sky.detachEvent(ele,'input',func);
@@ -2475,7 +2545,7 @@ Sky.UUID=function() {
 			attachEvent:function(ele, evt, func){
 				var proxyHandle=function(e){
 					e=e || window.event;
-					if(e.propertyName=='value'){
+					if(e.propertyName==='value'){
 						if(!e.srcElement.disabled && !e.srcElement.readOnly){
 							e.target=e.srcElement;
 							e.currentTarget=ele;
@@ -2621,6 +2691,20 @@ Sky.getPrevElement=function(element){
 	}else{
 		return Sky.getPrevElement(e);
 	}
+};
+Sky.getAttrs=function(ele){
+	var arr=[];
+	var i=ele.attributes.length;
+	while(i-->0){
+		var attr=ele.attributes[i];
+		var key=attr.name,value=attr.value;
+		if(attr.specified || key==="value"){
+			if(value){
+				arr.push(attr);
+			}
+		}
+	}
+	return arr;
 };
 Sky.getFormData=function(form){
 	if(Sky.isString(form)){
@@ -2857,7 +2941,7 @@ Sky.destroy=function(ele){
 			}else{
 				var noId=false;
 				if(!e.id){
-					e.id="SKY"+Sky.nextSequence();
+					e.id="SKY"+Sky.uniqueId();
 					noId=true;
 				}
 				var r=Array.from(document.querySelectorAll("#"+e.id+" "+selector));
@@ -3042,6 +3126,7 @@ Sky.destroy=function(ele){
 		return node;
 	};
 })();
+
 (function(){
 	var Batch=function(){ Array.call(this);};
 	Batch.prototype=Sky.fn={
@@ -3534,9 +3619,6 @@ Sky.fn.text=function(value){
 	}else{
 		if(this.length>0){
 			node=this[0];
-			if('textContent' in node){
-				return node.textContent;
-			}
 			return node.innerText;
 		}
 	}
@@ -3780,6 +3862,7 @@ Sky.fn.outerHeight=function(){
 		return ele.offsetHeight;
 	}
 };
+
 
 $.overload([$.isString,$.isDocument],$,Sky.query);
 $.overload([$.isString,$.isElement],$,Sky.query);

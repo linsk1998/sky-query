@@ -491,9 +491,6 @@ Sky.fn.text=function(value){
 	}else{
 		if(this.length>0){
 			node=this[0];
-			if('textContent' in node){
-				return node.textContent;
-			}
 			return node.innerText;
 		}
 	}

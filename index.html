@@ -164,11 +164,11 @@ $batch.css({"paddingLeft":"100px","color":"#fff"});</code></pre>
 		var mouseenter=0;
 		var mouseleave=0;
 		$("#mouseenter1").mouseenter(function(){
-			mouseenter=Sky.nextSequence("mouseenter");
+			mouseenter=Sky.uniqueId("mouseenter");
 			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
 		$("#mouseenter1").mouseleave(function(){
-			mouseleave=Sky.nextSequence("mouseleave");
+			mouseleave=Sky.uniqueId("mouseleave");
 			$("#mouseenter2").text("mouseenter:"+mouseenter+"，mouseleave:"+mouseleave);
 		});
 	</script>
