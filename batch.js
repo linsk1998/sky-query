@@ -111,7 +111,7 @@
 					if(selector && !Sky.matchesSelector(brother,selector)){
 						continue ;
 					}
-					nodes.push(parent);
+					nodes.push(brother);
 				}
 			}
 		});
@@ -126,7 +126,7 @@
 					if(selector && !Sky.matchesSelector(brother,selector)){
 						continue ;
 					}
-					nodes.push(parent);
+					nodes.push(brother);
 				}
 			}
 		});
@@ -141,7 +141,7 @@
 					if(selector && !Sky.matchesSelector(brother,selector)){
 						return ;
 					}
-					nodes.push(parent);
+					nodes.push(brother);
 				}
 			}
 		});
@@ -156,7 +156,7 @@
 					if(selector && !Sky.matchesSelector(brother,selector)){
 						return ;
 					}
-					nodes.push(parent);
+					nodes.push(brother);
 				}
 			}
 		});
