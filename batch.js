@@ -214,11 +214,19 @@
 	};
 	Sky.fn.filter=function(selector){
 		var nodes=new Batch();
-		this.forEach(function(ele){
-			if(Sky.matchesSelector(ele,selector)){
-				nodes.push(ele );
-			}
-		});
+		if(Sky.isFunction(selector)){
+			this.forEach(function(ele,index){
+				if(selector.call(ele,index)){
+					nodes.push(ele);
+				}
+			});
+		}else{
+			this.forEach(function(ele){
+				if(Sky.matchesSelector(ele,selector)){
+					nodes.push(ele );
+				}
+			});
+		}
 		return nodes;
 	};
 	Sky.fn.not=function(selector){
