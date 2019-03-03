@@ -6,17 +6,8 @@ Sky.overload([Sky.isElement],Sky,Sky.ele);
 Sky.overload([Sky.isDocument],Sky,Sky.ele);
 
 Sky.overload([Sky.isFunction],Sky,function(callback){
-	if(Sky.isReady){
-		setTimeout(callback,0);
-	}else{
-		Sky.ready(callback);
-	}
+	Sky.ready().then(callback);
 });
 
-Sky.overload([Sky.isString],Sky,function(selector){
-	if(selector.startsWith('#') || selector.includes(" ") || selector.includes(">")){
-		return Sky.query(selector);
-	}else{
-		return Sky.create(selector);
-	}
-});
+Sky.overload([Sky.isString],Sky,Sky.query);
+Sky.overload([Sky.isString,Sky.isObject],Sky,Sky.create);
